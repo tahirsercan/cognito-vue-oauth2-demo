@@ -32,11 +32,16 @@ jobs:
       # CodeQL analiz adımları burada olabilir
 
   duplication-check:
+    name: Detect Code Duplication
     runs-on: ubuntu-latest
-    needs: analyze
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Daha fazla commit geçmişi al
+          
+      - name: Fetch full history (Fix SHA error)
+        run: git fetch --unshallow
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -50,22 +55,18 @@ jobs:
         id: changed-files
         uses: tj-actions/changed-files@v44
         with:
-          since: ${{ github.event.before || github.event.pull_request.base.sha }}
-          until: ${{ github.sha || github.event.pull_request.head.sha }}
+          since: ${{ github.event.pull_request.base.sha }}
+          until: ${{ github.event.pull_request.head.sha }}
 
       - name: Run jscpd on changed files
         run: |
-          CHANGED_FILES="${{ steps.changed-files.outputs.all_changed_files }}"
-          
-          if [[ -n "$CHANGED_FILES" ]]; then
-            echo "Changed files: $CHANGED_FILES"
+          if [ -n "${{ steps.changed-files.outputs.all_changed_files }}" ]; then
+            echo "Changed files: ${{ steps.changed-files.outputs.all_changed_files }}"
             jscpd \
               --min-tokens 10 \
               --threshold 1 \
-              --ignore-identifiers \
               --reporters console \
               --ignore "**/generated/**" \
-              $CHANGED_FILES
+              ${{ steps.changed-files.outputs.all_changed_files }}
           else
-            echo "No changed files detected. Skipping jscpd."
-          fi
+            echo "No files changed. Skipping duplication check."
