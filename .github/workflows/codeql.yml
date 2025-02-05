@@ -1,3 +1,4 @@
+
 name: Detect Code Duplication
 
 on:
@@ -31,7 +32,6 @@ jobs:
 
       # CodeQL analiz adımları burada olabilir
 
-  jobs:
   duplication-check:
     name: Detect Code Duplication
     runs-on: ubuntu-latest
@@ -63,13 +63,11 @@ jobs:
         run: |
           FILES="${{ steps.changed-files.outputs.all_changed_files }}"
           echo "Changed files: $FILES"
-
           # Hata ayıklamak için dosya listesini kontrol et
           if [ -z "$FILES" ]; then
             echo "No files changed. Skipping duplication check."
             exit 0
           fi
-
           # Eğer birden fazla dosya varsa, onları düzgün işleyelim
           echo "$FILES" | while read -r file; do
             echo "Processing $file..."
