@@ -126,7 +126,7 @@ jobs:
             for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
               echo "Checking duplication in $file"
               jscpd \
-              --min-tokens 50 \
+              --min-tokens 20 \
               --threshold 1 \
               --reporters console \
               --ignore "**/generated/**" \
