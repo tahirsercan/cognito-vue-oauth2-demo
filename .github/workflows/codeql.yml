@@ -61,8 +61,10 @@ jobs:
       - name: Run jscpd on changed files
         run: |
           FILES="${{ steps.changed-files.outputs.all_changed_files }}"
-          if [[ ! -z "$FILES" ]]; then
-            echo "Changed files: $FILES"
+          echo "Changed files: $FILES"
+
+          if [ -n "$FILES" ]; then
+            echo "Running jscpd..."
             jscpd \
               --min-tokens 10 \
               --threshold 1 \
@@ -71,3 +73,4 @@ jobs:
               $FILES
           else
             echo "No files changed. Skipping duplication check."
+        shell: bash
