@@ -1,4 +1,4 @@
-name: "CodeQL + Duplication Check"
+name: Detect Code Duplication
 
 on:
   push:
@@ -6,14 +6,17 @@ on:
   pull_request:
     branches: [ "master" ]
   schedule:
-    - cron: '33 6 * * 6'
+    - cron: '33 6 * * 6'  # Her cumartesi 06:33'te çalışır
 
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
     runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
     permissions:
-      # ... (permissions as in the original codeql.yml)
+      contents: read
+      actions: read
+      packages: read
+      security-events: write
 
     strategy:
       fail-fast: false
@@ -26,11 +29,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ... (CodeQL analysis steps as in the original codeql.yml)
+      # CodeQL analiz adımları burada olabilir
 
   duplication-check:
     runs-on: ubuntu-latest
-    needs: analyze # Run duplication check after CodeQL analysis completes
+    needs: analyze
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -47,20 +50,22 @@ jobs:
         id: changed-files
         uses: tj-actions/changed-files@v44
         with:
-          since: ${{ github.event.pull_request.base.sha }}
-          until: ${{ github.event.pull_request.head.sha }}
+          since: ${{ github.event.before || github.event.pull_request.base.sha }}
+          until: ${{ github.sha || github.event.pull_request.head.sha }}
 
       - name: Run jscpd on changed files
         run: |
-          if [ -n "${{ steps.changed-files.outputs.all_changed_files }}" ]; then
-            echo "Changed files: ${{ steps.changed-files.outputs.all_changed_files }}"
+          CHANGED_FILES="${{ steps.changed-files.outputs.all_changed_files }}"
+          
+          if [[ -n "$CHANGED_FILES" ]]; then
+            echo "Changed files: $CHANGED_FILES"
             jscpd \
               --min-tokens 10 \
               --threshold 1 \
               --ignore-identifiers \
               --reporters console \
               --ignore "**/generated/**" \
-              ${{ steps.changed-files.outputs.all_changed_files }}
+              $CHANGED_FILES
           else
-            echo "No files changed. Skipping duplication check."
+            echo "No changed files detected. Skipping jscpd."
           fi
