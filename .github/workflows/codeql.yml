@@ -61,8 +61,11 @@ jobs:
 
       - name: Run jscpd on changed files
         run: |
+          # Go to the directory containing the head branch
+          cd head_branch
+
           # Calculate changed files using git diff (most reliable)
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} head_branch -- . | grep -v -E '^\.github/') # Exclude .github
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} . | grep -v -E '^\.github/') # Diff against the base SHA in the current directory
 
           if [[ -n "$CHANGED_FILES" ]]; then
             echo "Changed files: $CHANGED_FILES"
