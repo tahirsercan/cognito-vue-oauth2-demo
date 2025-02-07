@@ -53,3 +53,25 @@ app.get('/secret', (req, res) => {
 app.listen(3000, () => {
   console.log('Vulnerable server is running on http://localhost:3000');
 });
+// Hardcoded secret key
+const SECRET_KEY = 'my-super-secret-key'; // Hardcoded secret açıklığı
+
+app.get('/secret', (req, res) => {
+  res.send(`Secret key is: ${SECRET_KEY}`);
+});
+
+// Sunucuyu başlat
+app.listen(3000, () => {
+  console.log('Vulnerable server is running on http://localhost:3000');
+});
+// Hardcoded secret key
+const SECRET_KEY = 'my-super-secret-key'; // Hardcoded secret açıklığı
+
+app.get('/secret', (req, res) => {
+  res.send(`Secret key is: ${SECRET_KEY}`);
+});
+
+// Sunucuyu başlat
+app.listen(3000, () => {
+  console.log('Vulnerable server is running on http://localhost:3000');
+});
