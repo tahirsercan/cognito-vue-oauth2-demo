@@ -150,3 +150,85 @@ function multiplyValues(a, b) {
 function divideValues(a, b) {
   return a / b;
 }
+function calculateSum(a, b) {
+  return a + b;
+}
+
+function calculateDifference(a, b) {
+  return a - b;
+}
+
+function calculateProduct(a, b) {
+  return a * b;
+}
+
+function calculateQuotient(a, b) {
+  return a / b;
+}
+
+// Aynı kod bloklarının tekrarı
+function calculateSumAgain(a, b) {
+  return a + b;
+}
+
+function calculateDifferenceAgain(a, b) {
+  return a - b;
+}
+
+function calculateProductAgain(a, b) {
+  return a * b;
+}
+
+function calculateQuotientAgain(a, b) {
+  return a / b;
+}
+
+// Daha fazla tekrar
+function addNumbers(x, y) {
+  return x + y;
+}
+
+function subtractNumbers(x, y) {
+  return x - y;
+}
+function calculateSum(a, b) {
+  return a + b;
+}
+
+function calculateDifference(a, b) {
+  return a - b;
+}
+
+function calculateProduct(a, b) {
+  return a * b;
+}
+
+function calculateQuotient(a, b) {
+  return a / b;
+}
+
+// Aynı kod bloklarının tekrarı
+function calculateSumAgain(a, b) {
+  return a + b;
+}
+
+function calculateDifferenceAgain(a, b) {
+  return a - b;
+}
+
+function calculateProductAgain(a, b) {
+  return a * b;
+}
+
+function calculateQuotientAgain(a, b) {
+  return a / b;
+}
+
+// Daha fazla tekrar
+function addNumbers(x, y) {
+  return x + y;
+}
+
+function subtractNumbers(x, y) {
+  return x - y;
+}
