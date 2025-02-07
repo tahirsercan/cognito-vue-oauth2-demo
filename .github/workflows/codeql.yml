@@ -32,17 +32,24 @@ jobs:
 
       # CodeQL analiz adımları burada olabilir
 
-  duplication-check:
-    name: Detect Code Duplication
+  
+  duplication_check:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout Base Branch
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2  # Daha fazla commit geçmişi al
+          fetch-depth: 0 # Fetch full history
+          repository: ${{ github.event.pull_request.base.repo.full_name }} # The *base* repo
+          ref: ${{ github.event.pull_request.base.sha }}  # Checkout the base commit
 
-      - name: Fetch full history (Fix SHA error)
-        run: git fetch --unshallow
+      - name: Checkout Head Branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch full history
+          repository: ${{ github.event.pull_request.head.repo.full_name }} # The *forked* repo
+          ref: ${{ github.event.pull_request.head.sha }}  # Checkout the head commit
+          path: head_branch # Checkout to a separate directory
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -52,30 +59,27 @@ jobs:
       - name: Install jscpd
         run: npm install -g jscpd
 
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@v44
-        with:
-          since: ${{ github.event.pull_request.base.sha }}
-          until: ${{ github.event.pull_request.head.sha }}
-
       - name: Run jscpd on changed files
         run: |
-          FILES="${{ steps.changed-files.outputs.all_changed_files }}"
-          echo "Changed files: $FILES"
-          # Hata ayıklamak için dosya listesini kontrol et
-          if [ -z "$FILES" ]; then
-            echo "No files changed. Skipping duplication check."
-            exit 0
-          fi
-          # Eğer birden fazla dosya varsa, onları düzgün işleyelim
-          echo "$FILES" | while read -r file; do
-            echo "Processing $file..."
+          cd head_branch # Go to the head branch directory
+
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} . | grep -v -E '^\.github/')
+
+          if [[ -n "$CHANGED_FILES" ]]; then
+            echo "Changed files: $CHANGED_FILES"
             jscpd \
-              --min-tokens 10 \
-              --threshold 1 \
-              --reporters console \
-              --ignore "**/generated/**" \
-              "$file"
-          done
-        shell: bash
+              --min-tokens 30 \
+              --threshold 10 \
+              --max-lines 1000 \
+              --mode "strict" \
+              --format "javascript,typescript,jsx,tsx" \
+              --reporters console,json \
+              --output ./jscpd-report \
+              --ignore "**/*.test.{js,jsx,ts,tsx},**/*.spec.{js,jsx,ts,tsx},**/node_modules/**,**/dist/**,**/build/**,**/.git/**" \
+              $(echo "$CHANGED_FILES") # Now runs in the correct directory!
+          else
+            echo "No changed files detected. Skipping jscpd."
+          fi # The 'if' block now contains the 'jscpd' command
+          else
+            echo "No changed files detected. Skipping jscpd."
+          fi
