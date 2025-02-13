@@ -1,5 +1,4 @@
-
-name: Code-QL-Scanning
+name: CodeQL Scanning
 
 on:
   push:
@@ -7,27 +6,31 @@ on:
   pull_request:
     branches: [ "master" ]
   schedule:
-    - cron: '33 6 * * 6'  # Her cumartesi 06:33'te çalışır
+    - cron: '33 6 * * 6'
 
 jobs:
   static-analysis:
-    name: Analyze (${{ matrix.language }})
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    name: Static Analysis
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       actions: read
       packages: read
       security-events: write
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-        - language: 'javascript-typescript'
-          build-mode: none
-
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
-
-      # CodeQL analiz adımları burada olabilir
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+      - name: Install Dependencies  # The crucial change
+        run: npm install        
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: 'javascript-typescript'
+          queries: security-extended
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
