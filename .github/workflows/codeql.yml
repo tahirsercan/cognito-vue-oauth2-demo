@@ -4,7 +4,9 @@ on:
   push:
     branches: [ "master" ]
   pull_request:
-    branches: [ "master" ]
+    branches:
+      - master
+      - patch-1
   schedule:
     - cron: '33 6 * * 6'
 
