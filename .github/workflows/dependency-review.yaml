@@ -1,8 +1,5 @@
 name: 'Dependency Review'
 on:
-  push:
-    branches:
-      - master (Will need to be changed!!!!)
   pull_request:
    types: [opened, synchronize, reopened]
 permissions:
@@ -10,7 +7,6 @@ permissions:
   pull-requests: write
 jobs:
   dependency-review:
-    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest 
     steps:
       - name: 'Checkout Repository'
